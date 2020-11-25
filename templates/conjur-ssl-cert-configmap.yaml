@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-conjur-ssl-cert-configmap
+  namespace: {{ .Values.conjur.namespace }}
+  labels:
+    chart: {{ template "conjur-admin-app.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  ssl-certificate: {{ .Values.conjur.sslCert . | quote }}

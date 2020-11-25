@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conjur-cli
+  labels:
+    app: conjur-cli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conjur-cli
+  template:
+    metadata:
+      name: conjur-cli
+      labels:
+        app: conjur-cli
+    spec:
+      serviceAccountName: {{ .Values.conjur.serviceAccount }}
+      containers:
+      - name: conjur-cli
+        image: {{ .Values.conjurCLI.repository }}:{{ .Values.conjurCLI.tag }}
+        imagePullPolicy: {{ .Values.conjurCLI.pullPolicy }}
+        command: ["sleep"]
+        args: ["infinity"]
+        env:
+          - name: CONJUR_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name {{ .Release.Name }}-admin-pw }}
+              key: key 
+          - name: CONJUR_ACCOUNT
+            value: {{ .Values.conjur.conjurAccount }}
+          - name: CONJUR_NAMESPACE
+            value: {{ .Values.conjur.namespace }}
+        volumeMounts:
+        - name: policy-volume
+          mountPath: /policy
+      imagePullSecrets:
+        - name: dockerpullsecret
+      volumes:
+        - name: policy-volume
+          configMap:
+            name: {{ .Release.Name }}-conjur-policy
